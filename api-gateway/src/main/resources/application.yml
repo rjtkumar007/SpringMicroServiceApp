@@ -11,10 +11,18 @@ spring:
           uri: lb://product-service 
           predicates:
             - Path=/api/products
+          filters:
+            - AuthenticationFilter
         - id: order-service
           uri: lb://order-service
           predicates:
             - Path=/api/orders
+          filters:
+            - AuthenticationFilter
+        - id: auth-security-service
+          uri: lb://AUTH-SECURITY-SERVICE
+          predicates:
+            - Path=/api/auth/**
 eureka:
  client:
    fetch-registry: true

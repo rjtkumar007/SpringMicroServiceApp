@@ -89,4 +89,67 @@ Route - basic build block of API GATEWAY. Its is defined by an ID,destination UR
 <br>
 Predicate - This is a java 8  function predicate . This let you match on anything from the HTTP request  such as headers or parameters <br>
 Filter - These are the instances of Gateway Filter  that have been constructed with a specific factory. Here you can modify requests and responses before or after sending the downstream request.<br>
+<br>
+**Note**:- We should not implement security logic in gateway as it will break the basic architecture flow of GATEWAY. Instead we should create new microservice which will take care of all authentication and validation
+and return to Gateway whether to route successfully to target or return exception to client.
+<br>
 
+**SPRING SECURITY**
+Authentication and authorization are critical components of microservice security. Use Spring Security to implement these functionalities to ensure that only authorized users or services can access your microservices.
+<br>
+
+PasswordEncoder - Is used to encrypt the password while saving in DB <br>
+JWT HELPER - we will create helper component to handle JWT(Json Web Token) Validation, Creation. <br>
+**Dependency used to access jwt** - <br>
+<!--JWT-->
+`<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-api</artifactId>
+    <version>0.11.5</version>
+</dependency>`
+<br>
+
+`<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-impl</artifactId>
+    <version>0.11.5</version>
+    <scope>runtime</scope>
+</dependency>`
+<br>
+
+`<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-jackson</artifactId>
+    <version>0.11.5</version>
+    <scope>runtime</scope>
+</dependency>`
+<br>
+
+Secret of 32 bit
+generate a token
+to create a token these are params required -
+- claims ( header, payload and signature)
+- set subject -  username
+- issued at -- current time timestamp
+- expiration -- current time +timestamp
+- sign with - type of algo using to encrypt token
+
+Spring Security - It uses UserDetailsService to load user information by using loadUserByUserName method
+Also it will be required to generate token and to validate token
+
+**Steps to implement jwt token:**
+
+1) Make sure spring-boot-starter-security is there in pom.xml
+2) Create Class JWTAthenticationEntryPoint that implement AuthenticationEntryPoint. Method of this class is called whenever as exception is thrown due to unauthenticated user trying to access the resource that required authentication.
+3) Create JwtHelper  class ,This class contains method related to perform operations with jwt token like generateToken, validateToken etc.
+4) Create JWTAuthenticationFilter that extends OncePerRequestFilter and override method and write the logic to check the token that is comming in header. We have to write 5 important logic
+- Get Token from request
+- Validate Token
+- GetUsername from token
+- Load user associated with this token
+- set authentication
+5) Configure spring security filter chain in AuthConfig file
+
+**GATEWAY FILTER** -
+ 
+Create a Pre Filter: Implement a pre filter to intercept incoming requests and validate the token.
