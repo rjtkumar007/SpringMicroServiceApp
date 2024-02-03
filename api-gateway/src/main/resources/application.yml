@@ -19,10 +19,42 @@ spring:
             - Path=/api/orders
           filters:
             - AuthenticationFilter
+        - id: inventory-service
+          uri: lb://inventory-service
+          predicates:
+            - Path=/api/inventory
         - id: auth-security-service
-          uri: lb://AUTH-SECURITY-SERVICE
+          uri: lb://auth-security-service
           predicates:
             - Path=/api/auth/**
+    circuitbreaker:
+      resilience4j:
+        enabled: true
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+  endpoint:
+    health:
+      show-details: always
+resilience4j:
+  circuitbreaker:
+    instances:
+      order-service:
+        sliding-window-type: COUNT_BASED
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 5s
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        register-health-indicator: true
+      
 eureka:
  client:
    fetch-registry: true
@@ -35,7 +67,6 @@ eureka:
 logging:
   level:
     root: INFO
-
 
     
   

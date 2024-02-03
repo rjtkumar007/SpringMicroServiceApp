@@ -153,3 +153,23 @@ Also it will be required to generate token and to validate token
 **GATEWAY FILTER** -
  
 Create a Pre Filter: Implement a pre filter to intercept incoming requests and validate the token.
+<br>
+Add Filter in your application.yml to all the routes and do not include in the Auth-security-service.
+
+**CIRCUIT BREAKER**
+<br>
+1) Closed State - When microservices run and interact smoothly, circuit breaker is Closed. It keeps continuously monitoring the number of failures occurring within the configured time period. If the failure rate exceeds the specified threshold, Its state will change to Open state. If not, it will reset the failure count and timeout period.
+2) Open State - During Open state, circuit breaker will block the interacting flow between microservices. Request callings will fail, and exceptions will be thrown. Open state remains until the timeout ends, then change to Half_Open state.
+3) Half Open - In Half_Open state, circuit breaker will allow a limited of number requests to pass through. If the failure rate is greater than the specified threshold, it switches again to Open state. Otherwise, it is Closed state.
+
+![img_2.png](img_2.png)
+
+- Dependency Used <br>
+`
+<dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
+</dependency>
+`
+@CircuitBreaker(name = "anyname" , fallbackMethod= "method_name")
+It can be in service or controller where you are making a call
