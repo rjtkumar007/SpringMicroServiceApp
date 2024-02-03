@@ -19,20 +19,22 @@ It can be achieved in two ways:-
 2. Asynchronous Communication - Fire and forget when service make a request and doesn't care of response.
 
 To Use WebClient we need dependency
-`<dependency>
-<groupId>org.springframework.boot</groupId>
-<artifactId>spring-boot-starter-webflux</artifactId>
-</dependency>`
+
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-webflux</artifactId>
+    </dependency>
 
 And then we will configure inside WebClientConfiguration where we will create bean of WebClient and class will be configured with
 @Configuration annotation so that it can be scanned by ComponentScan and bean can be handle by Spring IOC Container
 
 By Default webclient make all request as asynchronous. To make it as synchronous you have append with ".block()"
-`webclient.get()
+
+    webclient.get()
          .uri("URL")   
         .retrieve()
         .bodyToMono(ReturnResponseTypeFromRequestedUrl)
-        .block();`
+        .block();
         
 
 **SERVICE DISCOVERY**
@@ -53,16 +55,16 @@ If we stop discovery service and rest other services are still Up than still our
 
 
 <br>
-<br>
 **API GATEWAY- SPRING CLOUD GATEWAY**
 <br>
 API GATEWAY - which acts like entry point and will route  to respected service based on the rules configured.<br>
 **DEFAULT PORT -  9191**
 <br>
-- Routing based on Request Header<br>
-- Authentication<br>
-- Security<br>
-- Load Balancing<br>
+
+- Routing based on Request Header
+- Authentication
+- Security
+- Load Balancing
 
 **Features of SPRING CLOUD GATEWAY** <br>
 - Able to match routes on any request attributes
@@ -76,10 +78,11 @@ API GATEWAY - which acts like entry point and will route  to respected service b
 <br>
 Dependency used :-
 
-  ` <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-gateway</artifactId>
-    </dependency>`
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-gateway</artifactId>
+        </dependency>
+
 
 ![img_1.png](img_1.png)
 
@@ -98,31 +101,33 @@ and return to Gateway whether to route successfully to target or return exceptio
 Authentication and authorization are critical components of microservice security. Use Spring Security to implement these functionalities to ensure that only authorized users or services can access your microservices.
 <br>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
 PasswordEncoder - Is used to encrypt the password while saving in DB <br>
 JWT HELPER - we will create helper component to handle JWT(Json Web Token) Validation, Creation. <br>
 **Dependency used to access jwt** - <br>
 <!--JWT-->
-`<dependency>
-    <groupId>io.jsonwebtoken</groupId>
-    <artifactId>jjwt-api</artifactId>
-    <version>0.11.5</version>
-</dependency>`
-<br>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
 
-`<dependency>
-    <groupId>io.jsonwebtoken</groupId>
-    <artifactId>jjwt-impl</artifactId>
-    <version>0.11.5</version>
-    <scope>runtime</scope>
-</dependency>`
-<br>
-
-`<dependency>
-    <groupId>io.jsonwebtoken</groupId>
-    <artifactId>jjwt-jackson</artifactId>
-    <version>0.11.5</version>
-    <scope>runtime</scope>
-</dependency>`
 <br>
 
 Secret of 32 bit
@@ -157,6 +162,7 @@ Create a Pre Filter: Implement a pre filter to intercept incoming requests and v
 Add Filter in your application.yml to all the routes and do not include in the Auth-security-service.
 
 **CIRCUIT BREAKER**
+
 <br>
 1) Closed State - When microservices run and interact smoothly, circuit breaker is Closed. It keeps continuously monitoring the number of failures occurring within the configured time period. If the failure rate exceeds the specified threshold, Its state will change to Open state. If not, it will reset the failure count and timeout period.
 2) Open State - During Open state, circuit breaker will block the interacting flow between microservices. Request callings will fail, and exceptions will be thrown. Open state remains until the timeout ends, then change to Half_Open state.
@@ -165,11 +171,54 @@ Add Filter in your application.yml to all the routes and do not include in the A
 ![img_2.png](img_2.png)
 
 - Dependency Used <br>
-`
-<dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
-</dependency>
-`
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
+        </dependency>
+
 @CircuitBreaker(name = "anyname" , fallbackMethod= "method_name")
 It can be in service or controller where you are making a call
+
+
+![img_2.png](img_2.png)
+
+<br> 
+
+**DISTRIBUTED TRACING** is a method used to profile and monitoring applications. It helps to pinpoint where failure occurs and what cause poor performance
+We used to track the logs in distributed systems by spanID and TraceID.
+TraceId will remain same through out the request and has a unique traceID and spanID is given to individual microservice. Its a segment of a trace within a service.
+One service can output multiple spans to a single trace.
+
+![img_3.png](img_3.png)
+**Dependency Used-**
+      
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-actuator</artifactId>
+      </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.zipkin.reporter2</groupId>
+            <artifactId>zipkin-reporter-brave</artifactId>
+        </dependency>
+
+Micrometer dependency is used in place of Sleuth which will help to trace the logs
+and Zipkin is a distributed tracing system. It helps gather timing data needed to troubleshoot latency problems in microservice architectures. It manages both the collection and lookup of this data. 
+
+and to run Zipkin we need to run the below command:-
+
+    docker run -d -p 9411:9411 openzipkin/zipkin
+
+In Application.yml, we need to below properties to enable & see traces in zipkin server 
+and trace percentage from range 1 to 0 where 1 is 100%
+
+    management:
+      tracing:
+        enabled: true
+        sampling:
+          probability: 1.0
+      

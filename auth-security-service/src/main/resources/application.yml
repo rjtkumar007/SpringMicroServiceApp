@@ -23,5 +23,12 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
-      
-      
+
+management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/zipkin/
