@@ -5,6 +5,7 @@ import com.shutterbug.orderservice.dto.response.InventoryResponse;
 import com.shutterbug.orderservice.entity.Order;
 import com.shutterbug.orderservice.entity.OrderItem;
 import com.shutterbug.orderservice.repository.OrderRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;

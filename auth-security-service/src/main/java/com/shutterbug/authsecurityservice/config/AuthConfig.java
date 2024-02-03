@@ -39,7 +39,7 @@ public class AuthConfig {
     public SecurityFilterChain securityFilterChain( HttpSecurity http ) throws Exception {
                 http.csrf(csrf-> csrf.disable())
                 .authorizeHttpRequests(
-                        request-> request.requestMatchers("/api/auth/register", "/api/auth/token").permitAll()
+                        request-> request.requestMatchers("/api/auth/register", "/api/auth/token", "/api/inventory").permitAll()
                                 .anyRequest().authenticated())
                         .exceptionHandling(exception-> exception.authenticationEntryPoint(entryPoint))
                         .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
