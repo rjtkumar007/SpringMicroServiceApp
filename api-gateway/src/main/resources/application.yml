@@ -3,7 +3,7 @@ server:
 spring:
   application:
     name: API-GATEWAY
-
+  
   cloud:
     gateway:
       routes:
@@ -39,9 +39,16 @@ management:
       exposure:
         include:
           - health
+          - zipkin
+          - info
   endpoint:
     health:
       show-details: always
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+    
 resilience4j:
   circuitbreaker:
     instances:
@@ -67,8 +74,3 @@ eureka:
 logging:
   level:
     root: INFO
-
-    
-  
-
-   

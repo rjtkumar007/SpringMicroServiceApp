@@ -24,12 +24,19 @@ management:
       exposure:
         include:
           - health
+          - zipkin
+          - info
   health:
     circuitbreakers:
       enabled: true    
   endpoint:
     health:
       show-details: always
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+      
 resilience4j:
   circuitbreaker:
     instances:
@@ -51,5 +58,13 @@ eureka:
     register-with-eureka: true
     service-url:
       default-zone: http://localhost:8761/eureka
-  
+
+
+tracing:
+  zipkin:
+    http:
+      url: http://localhost:9411
+    enabled: true
+    sampler:
+      probability: 1
   
