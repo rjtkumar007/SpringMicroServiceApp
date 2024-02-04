@@ -4,9 +4,11 @@ import com.shutterbug.orderservice.dto.request.OrderRequest;
 import com.shutterbug.orderservice.dto.response.InventoryResponse;
 import com.shutterbug.orderservice.entity.Order;
 import com.shutterbug.orderservice.entity.OrderItem;
+import com.shutterbug.orderservice.event.OrderPlaceEvent;
 import com.shutterbug.orderservice.repository.OrderRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
@@ -21,12 +23,15 @@ public class OrderService {
     private final WebClient.Builder webClientBuilder;
 
     @Autowired
+    KafkaTemplate<String, OrderPlaceEvent> kafkaTemplate;
+    
+    @Autowired
     public OrderService ( OrderRepository orderRepository, WebClient.Builder webClientBuilder ) {
         this.orderRepository = orderRepository;
         this.webClientBuilder = webClientBuilder;
     }
 
-    public void placeOrder ( OrderRequest orderRequest ) {
+    public String placeOrder ( OrderRequest orderRequest ) {
         var orderBuilder = Order.builder();
         var orderItemList =  orderRequest.getOrderItemDtoList().stream().map(this:: mapOrderItemRequest).toList();
         orderBuilder.orderItemList(orderItemList).orderNumber(UUID.randomUUID().toString());
@@ -39,7 +44,10 @@ public class OrderService {
                 .block();
         var isAllInStock = Arrays.stream(response).allMatch(InventoryResponse::isInStock);
         if(isAllInStock) {
-            orderRepository.save(orderBuilder.build());
+            var order = orderBuilder.build();
+            orderRepository.save(order);
+            kafkaTemplate.send("notificationTopic", new OrderPlaceEvent(order.getOrderNumber()));
+            return "Successfully placed order.";
         } else {
             throw new IllegalArgumentException("Product is not in stock, Please try again later ");
         }
