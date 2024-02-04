@@ -24,8 +24,7 @@ public class OrderController {
     @CircuitBreaker(name = "order-service", fallbackMethod = "orderFallback")
     public String createOrder( @RequestBody  OrderRequest orderRequest) {
         log.info("Inside Create Order from Order Controller");
-        orderService.placeOrder(orderRequest);
-        return "Successfully placed order.";
+        return orderService.placeOrder(orderRequest);
     }
     
     public String orderFallback(OrderRequest orderRequest, Exception exception) {

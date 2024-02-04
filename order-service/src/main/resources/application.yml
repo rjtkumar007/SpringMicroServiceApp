@@ -18,6 +18,17 @@ spring:
     circuitbreaker:
       resilience4j:
         enabled: true
+#  Kafka Properties
+  kafka:
+    template:
+      default-topic: notificationTopic
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping:
+          event: OrderPlaceEvent
 management:
   endpoints:
     web:

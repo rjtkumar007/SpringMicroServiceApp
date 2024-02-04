@@ -12,7 +12,7 @@ Architecture Diagram -
 
 ![img.png](img.png)
 
-
+----------------------
 InterProcess Communication - This can be achieved by RestTemplate/Webclient. From Spring 5 onwards RestTemplate is under maintenance and WebClient has more modern APIs compartively.
 It can be achieved in two ways:- 
 1. Synchronous Communication - One service will make request to another service and will wait for the response.
@@ -36,6 +36,7 @@ By Default webclient make all request as asynchronous. To make it as synchronous
         .bodyToMono(ReturnResponseTypeFromRequestedUrl)
         .block();
         
+----------------------
 
 **SERVICE DISCOVERY**
 The place where all the services will be at one place. and will be registered to discovery server
@@ -53,6 +54,7 @@ To run various instance of any microservice we should not restrict port to speci
 To run multiple instances change port to 0 and in edit configuration select-> allow multiple instance.
 If we stop discovery service and rest other services are still Up than still our APIs will work as it will have internal copy of server running in client
 
+----------------------
 
 <br>
 **API GATEWAY- SPRING CLOUD GATEWAY**
@@ -97,6 +99,8 @@ Filter - These are the instances of Gateway Filter  that have been constructed w
 and return to Gateway whether to route successfully to target or return exception to client.
 <br>
 
+----------------------
+
 **SPRING SECURITY**
 Authentication and authorization are critical components of microservice security. Use Spring Security to implement these functionalities to ensure that only authorized users or services can access your microservices.
 <br>
@@ -130,9 +134,7 @@ JWT HELPER - we will create helper component to handle JWT(Json Web Token) Valid
 
 <br>
 
-Secret of 32 bit
-generate a token
-to create a token these are params required -
+Secret of 32 bit generate a token to create a token these are params required -
 - claims ( header, payload and signature)
 - set subject -  username
 - issued at -- current time timestamp
@@ -160,7 +162,7 @@ Also it will be required to generate token and to validate token
 Create a Pre Filter: Implement a pre filter to intercept incoming requests and validate the token.
 <br>
 Add Filter in your application.yml to all the routes and do not include in the Auth-security-service.
-
+----------------------
 **CIRCUIT BREAKER**
 
 <br>
@@ -185,9 +187,11 @@ It can be in service or controller where you are making a call
 
 <br> 
 
+--------------------------------------------
+
 **DISTRIBUTED TRACING** is a method used to profile and monitoring applications. It helps to pinpoint where failure occurs and what cause poor performance
 We used to track the logs in distributed systems by spanID and TraceID.
-TraceId will remain same through out the request and has a unique traceID and spanID is given to individual microservice. Its a segment of a trace within a service.
+TraceId will remain same through out the request and has a unique traceID and spanID is given to individual microservice. It's a segment of a trace within a service.
 One service can output multiple spans to a single trace.
 
 ![img_3.png](img_3.png)
@@ -221,4 +225,90 @@ and trace percentage from range 1 to 0 where 1 is 100%
         enabled: true
         sampling:
           probability: 1.0
-      
+----------------------
+**EVENT DRIVEN ARCHITECTURE**
+Whenever we are doing asynchronous communication , where service will fire request and forget. This type of asynchornous communication can achieve using Event Driven Architecture.
+EDA is a design pattern for building scalable and loosely coupled systems by enabling communication between different components through events.
+
+**APACHE KAFKA**
+It's a distributed Messaging Event Service. It provides a `kafkaTemplate` to send messages. It also provides support for Message driven POJOs with `@KafkaListener`and a `listener container`
+This libraries promote the use of dependency Injection and declarative.
+
+
+The Apache Kafka architecture is designed to provide a highly scalable, fault-tolerant, and distributed messaging system.
+
+Dependency Used
+
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+**KAFKA ARCHITECTURE**
+
+![img_4.png](img_4.png)
+
+1. Producer:
+
+Producers are applications that produce data and publish it to Kafka topics.
+They send messages to Kafka brokers over the network.
+Producers can choose which topic to publish to and optionally specify a partition or key for message routing using Kafka template.
+
+2. Broker:
+
+Brokers are individual Kafka server instances responsible for storing and serving messages.
+They receive messages from producers, store them on disk, and serve them to consumers.
+Kafka brokers operate in a distributed cluster, allowing for scalability and fault tolerance.
+They can be thought of as individual nodes in the Kafka cluster.
+
+3. Consumer:
+
+Consumers are applications that subscribe to Kafka topics and consume messages.
+They pull messages from Kafka brokers and process them according to their application logic.
+Consumers can be part of a consumer group, allowing for parallel message processing and load balancing across multiple instances.
+
+4. Topic:
+
+A topic is a category or stream name to which records (messages) are published by producers.
+Each topic can have multiple partitions, which allows for parallel processing and scalability.
+Topics can be created and configured dynamically.
+
+5. Partition:
+
+A partition is a unit of parallelism and scalability within a topic.
+Each partition is an ordered, immutable sequence of messages.
+Messages within a partition are assigned a unique offset, starting from 0.
+Partitions allow Kafka to distribute and parallelize message processing across multiple brokers and consumers.
+
+6. ZooKeeper:
+
+ZooKeeper is a distributed coordination service used by Kafka for managing and coordinating broker nodes.
+It helps with tasks such as leader election, configuration management, and maintaining metadata about the Kafka cluster.
+ZooKeeper is a critical component of Kafka's architecture but is gradually being replaced by the Kafka Controller in newer versions of Kafka.
+
+**KAFKA CONFIGURATION**
+
+    kafka:
+      template:
+        default-topic: notificationTopic
+      consumer:
+        bootstrap-servers: localhost:9092
+        group-id: notificationId
+        key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        properties:
+          spring.json.type.mapping:
+            event: com.shutterbug.notificationservice.event.OrderPlaceEvent
+
+CODE
+ To Publish message
+
+    kafkaTemplate.send("notificationTopic", new OrderPlaceEvent(order.getOrderNumber()));
+To Consume message
+
+    @KafkaListener(topics = "notificationTopic", groupId = "notificationId")
+      public void handleMessage( OrderPlaceEvent orderPlaceEvent) {
+      // send out email or slack
+      log.info("Received Order from Kafka "+ orderPlaceEvent.getOrderNumber());
+      }

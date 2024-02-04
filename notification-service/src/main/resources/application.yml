@@ -1,0 +1,42 @@
+server:
+  port: 8085
+spring:
+  application:
+    name: NOTIFICATION-SERVICE
+    
+#    Kafka Properties
+  kafka:
+    template:
+      default-topic: notificationTopic
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: notificationId
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.type.mapping:
+          event: com.shutterbug.notificationservice.event.OrderPlaceEvent
+     
+# Actuator 
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - zipkin
+          - info
+# Zipkin Tracing
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+#Discovery Client
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      default-zone: http://localhost:8761/eureka
