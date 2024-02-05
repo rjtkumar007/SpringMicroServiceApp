@@ -5,6 +5,7 @@ import com.shutterbug.orderservice.dto.response.InventoryResponse;
 import com.shutterbug.orderservice.entity.Order;
 import com.shutterbug.orderservice.entity.OrderItem;
 import com.shutterbug.orderservice.event.OrderPlaceEvent;
+import com.shutterbug.orderservice.external.service.InventoryService;
 import com.shutterbug.orderservice.repository.OrderRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +23,16 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final WebClient.Builder webClientBuilder;
 
+    private final InventoryService inventoryService;
     @Autowired
     KafkaTemplate<String, OrderPlaceEvent> kafkaTemplate;
     
+    
     @Autowired
-    public OrderService ( OrderRepository orderRepository, WebClient.Builder webClientBuilder ) {
+    public OrderService ( OrderRepository orderRepository, WebClient.Builder webClientBuilder, InventoryService inventoryService ) {
         this.orderRepository = orderRepository;
         this.webClientBuilder = webClientBuilder;
+        this.inventoryService = inventoryService;
     }
 
     public String placeOrder ( OrderRequest orderRequest ) {
@@ -37,12 +41,13 @@ public class OrderService {
         orderBuilder.orderItemList(orderItemList).orderNumber(UUID.randomUUID().toString());
         
         List<String> skuCodes = orderRequest.getOrderItemDtoList().stream().map(OrderItemDto::getSkuCode).toList();
-        var response = webClientBuilder.build().get()
-                .uri("http://INVENTORY-SERVICE/api/inventory", uriBuilder -> uriBuilder.queryParam("skuCode",skuCodes).build())
-                .retrieve()
-                .bodyToMono(InventoryResponse[].class)
-                .block();
-        var isAllInStock = Arrays.stream(response).allMatch(InventoryResponse::isInStock);
+//        var response = webClientBuilder.build().get()
+//                .uri("http://INVENTORY-SERVICE/api/inventory", uriBuilder -> uriBuilder.queryParam("skuCode",skuCodes).build())
+//                .retrieve()
+//                .bodyToMono(InventoryResponse[].class)
+//                .block();
+        var response = inventoryService.getInventory(skuCodes);
+        var isAllInStock = response.size()> 0 ? response.stream().allMatch(InventoryResponse::isInStock): false;
         if(isAllInStock) {
             var order = orderBuilder.build();
             orderRepository.save(order);
