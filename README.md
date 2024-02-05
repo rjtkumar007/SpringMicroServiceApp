@@ -312,3 +312,23 @@ To Consume message
       // send out email or slack
       log.info("Received Order from Kafka "+ orderPlaceEvent.getOrderNumber());
       }
+
+-----------------------------------
+
+FEIGN CLIENT
+
+The Feign is a declarative HTTP web client developed by Netflix. If you want to use Feign , create an interface and annotate it.
+
+**Dependency Used** :-
+
+         <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+         </dependency>
+Steps:-
+1. Enable Feign Client in your main App by using annotation @EnableFeignClients
+2. Create an interface and annotate with @FeignClient(name = "Application_Name_Microservice")
+3. Within interface create your method with annotation based on your request type like @GetMapping("path") , @PostMapping("path") with path 
+4. Inject your interface in your service to use the method to call 
+
+

@@ -73,6 +73,11 @@
             <artifactId>spring-kafka</artifactId>
             <version>3.1.1</version>
         </dependency>
+        <!--Replacing Webclient with Feign for Http requests-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
