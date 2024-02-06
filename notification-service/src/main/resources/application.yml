@@ -17,6 +17,8 @@ spring:
         spring.json.type.mapping:
           event: com.shutterbug.notificationservice.event.OrderPlaceEvent
      
+  config:
+    import: configserver:http://localhost:8086
 # Actuator 
 management:
   endpoints:
@@ -31,12 +33,3 @@ management:
     enabled: true
     sampling:
       probability: 1.0
-#Discovery Client
-eureka:
-  instance:
-    hostname: localhost
-  client:
-    fetch-registry: true
-    register-with-eureka: true
-    service-url:
-      default-zone: http://localhost:8761/eureka

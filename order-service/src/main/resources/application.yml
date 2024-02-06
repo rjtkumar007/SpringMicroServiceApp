@@ -3,6 +3,9 @@ server:
 spring:
   application:
     name: ORDER-SERVICE
+  config:
+    import: configserver:http://localhost:8086
+
   datasource:
     username: root
     name: root
@@ -60,16 +63,6 @@ resilience4j:
         permitted-number-of-calls-in-half-open-state: 3
         sliding-window-size: 10
         register-health-indicator: true    
-
-eureka:
-  instance:
-    hostname: localhost
-  client:
-    fetch-registry: true
-    register-with-eureka: true
-    service-url:
-      default-zone: http://localhost:8761/eureka
-
 
 tracing:
   zipkin:

@@ -3,18 +3,11 @@ spring:
     name: PRODUCT-SERVICE
   datasource:
     url: mongodb://localhost:27017/
+  config:
+    import: configserver:http://localhost:8086
 
 server:
   port: 8080
-
-eureka:
-  instance:
-    hostname: localhost
-  client:
-    fetch-registry: true
-    register-with-eureka: true
-    service-url:
-      default-zone: http://localhost:8761/eureka
 
 management:
   tracing:
