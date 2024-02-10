@@ -22,6 +22,7 @@
         <module>api-gateway</module>
         <module>auth-security-service</module>
         <module>notification-service</module>
+        <module>config-server-service</module>
     </modules>
 
     <properties>

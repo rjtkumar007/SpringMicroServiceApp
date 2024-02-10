@@ -317,7 +317,7 @@ To Consume message
 
 FEIGN CLIENT
 
-The Feign is a declarative HTTP web client developed by Netflix. If you want to use Feign , create an interface and annotate it.
+The Feign is a declarative HTTP web client developed by Netflix which replace RestTemplate and WebClient for anytype of http request. If you want to use Feign , create an interface and annotate it.
 
 **Dependency Used** :-
 
@@ -331,4 +331,46 @@ Steps:-
 3. Within interface create your method with annotation based on your request type like @GetMapping("path") , @PostMapping("path") with path 
 4. Inject your interface in your service to use the method to call 
 
+
+-------------------------------
+
+**CONFIG SERVER**
+
+It follows client-server architecture with which we will externalise all our local configuration in server/cloud. Some common configurations which has been repeated can be moved to config server. 
+Central Management  for configuration via GIT,SVN etc.
+
+Steps: 
+1. We will create config server service who will be responsible to get all the configurations from server and return to the respective microservice client
+
+**Dependency Used to Create Config Server** 
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-config-server</artifactId>
+        </dependency>
+
+2. We will add annotation with @EnableConfigServer
+3. We will add  following properties in application.yml 
+        
+           cloud:
+             config:
+               server:
+                 git:
+                   uri: https://github.com/rjtkumar007/SpringMicroServiceAppConfig.git
+                   clone-on-start: true
+          
+4. Now to retrieve configuration in services we will include cloud config client depenedency to utilize the properties while runtime
+
+Dependency used
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-config-client</artifactId>
+        </dependency>
+
+Add below properties in your application.yml to fetch from cloud config server 
+            
+            spring: 
+              config:
+                import: configserver: http://localhost:8085
 
